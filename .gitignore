@@ -1,0 +1,15 @@
+syntax: glob
+
+# QtCreator artefacts
+*.autosave
+*.user.*
+*.user
+
+# gedit artefacts
+*~
+
+# make artefacts
+*.o
+
+# binary
+cmtos
