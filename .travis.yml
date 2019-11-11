@@ -1,5 +1,12 @@
 os: linux
-language: generic
+language: c
+sudo: false
+compiler: gcc
 
 script:
   - make
+  - ./cmtos
+  - gcov ./*.c
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)

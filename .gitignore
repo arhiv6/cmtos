@@ -11,5 +11,12 @@ syntax: glob
 # make artefacts
 *.o
 
+# coverage analysis artefacts
+*.gcda
+*.gcno
+*.gcov
+*.info
+report
+
 # binary
 cmtos
