@@ -1,9 +1,9 @@
 TARGET=cmtos
 
-SOURCES=$(wildcard src/*.c) $(wildcard tests/*.c)
+SOURCES=$(wildcard src/*.c) $(wildcard test/*.c)
 OBJECTS=$(SOURCES:.c=.o)
 
-INC_DIRS=src tests
+INC_DIRS=src test
 INC_PARAMS=$(foreach d, $(INC_DIRS), -I$d)
 
 CC=gcc

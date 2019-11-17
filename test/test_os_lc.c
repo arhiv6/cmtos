@@ -1,8 +1,7 @@
-#include <stdio.h>
-#include <assert.h>
-
 #define OS_LC_USE_GOTO
 #include "os_lc.h"
+
+#include "test.h"
 
 static void test_task_a(lc_t *lc, int *val)
 {
@@ -22,18 +21,18 @@ static void test_task_b(lc_t *lc, int *val)
     LC_END();
 }
 
-int main()
+void test_os_lc(void)
 {
     lc_t a, b;
 
     int val1 = 0;
     LC_INIT(&a);
     test_task_a(&a, &val1);
-    assert(val1 == 1);
+    TEST_EQ(val1, 1);
     val1 = 0;
     LC_INIT(&a);
     test_task_a(&a, &val1);
-    assert(val1 == 1);
+    TEST_EQ(val1, 1);
 
     val1 = 0;
     int val2 = 0;
@@ -41,18 +40,14 @@ int main()
     LC_INIT(&b);
     test_task_a(&a, &val1);
     val2 += 1;
-    assert(val1 == val2);
+    TEST_EQ(val1, val2);
     test_task_b(&b, &val1);
     val2 += 5;
-    assert(val1 == val2);
+    TEST_EQ(val1, val2);
     test_task_a(&a, &val1);
     val2 += 3;
-    assert(val1 == val2);
+    TEST_EQ(val1, val2);
     test_task_b(&b, &val1);
     val2 += 7;
-    assert(val1 == val2);
-
-    printf("OK\n");
-
-    return 0;
+    TEST_EQ(val1, val2);
 }
