@@ -23,6 +23,8 @@
 
 #elif defined(OS_LC_USE_GOTO)       /* LC, основанные на goto/label */
 
+    #include <stddef.h>
+
     typedef void *lc_t;
 
     #define LC_CONCAT(id)   lc_label_ ## id
