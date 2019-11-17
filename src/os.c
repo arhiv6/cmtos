@@ -6,4 +6,12 @@ void coverage_test()
     {
         return;
     }
+
+    int a = 1;
+    int b = 2;
+
+    if (b>a)
+    {
+        a=b;
+    }
 }
