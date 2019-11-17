@@ -18,8 +18,7 @@ all: $(SOURCES) $(TARGET)
 
 test: all
 	./$(TARGET)
-	gcov $(SOURCES)
-	lcov --directory ./ --capture --output-file $(TARGET).info
+	lcov --directory ./src/ --capture --output-file $(TARGET).info
 	genhtml -o ./report/ $(TARGET).info
 
 $(TARGET): $(OBJECTS)

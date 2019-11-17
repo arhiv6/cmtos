@@ -6,7 +6,7 @@ compiler: gcc
 script:
   - make
   - ./cmtos
-  - gcov ./*.c
+  - gcov src/*.c
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
