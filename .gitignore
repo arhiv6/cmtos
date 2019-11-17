@@ -4,6 +4,7 @@ syntax: glob
 *.autosave
 *.user.*
 *.user
+*.pro
 
 # gedit artefacts
 *~
@@ -20,3 +21,4 @@ report
 
 # binary
 cmtos
+bin
