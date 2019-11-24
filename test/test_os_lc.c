@@ -1,7 +1,5 @@
-#define OS_LC_USE_SWICH
-#include "os_lc.h"
-
 #include "test.h"
+#include "os_lc.h"
 
 static enum
 {

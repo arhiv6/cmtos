@@ -3,12 +3,16 @@ TARGET=cmtos
 SOURCES=$(wildcard src/*.c) $(wildcard test/*.c)
 OBJECTS=$(SOURCES:.c=.o)
 
+DEFINES+=OS_MAX_TASKS=4
+DEFINES+=OS_LC_USE_SWICH
+DEF_PARAMS=$(foreach d, $(DEFINES), -D$d)
+
 INC_DIRS=src test
 INC_PARAMS=$(foreach d, $(INC_DIRS), -I$d)
 
 CC=gcc
 
-GCCFLAGS= -coverage
+GCCFLAGS= -coverage $(DEF_PARAMS)
 CFLAGS  =$(GCCFLAGS) $(INC_PARAMS)
 LDFLAGS =$(GCCFLAGS)
 
