@@ -21,6 +21,7 @@ typedef struct
     lc_t lc_state;
     task_state_t state;
     uint8_t priority;
+    uint8_t cost;
     void *data;
 } task_t;
 

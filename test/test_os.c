@@ -39,13 +39,15 @@ void test_os(void)
 
     os_init();
 
-    os_add_task(test_task, 1, 0);
-    os_add_task(test_task_exit, 2, &quit);
+    os_add_task(test_task, 2, 0);
+    os_add_task(test_task_exit, 1, &quit);
 
     if (setjmp(quit))
     {
         int i=0;
         TEST_EQ(states[i++], STATE_0);
+        TEST_EQ(states[i++], STATE_1);
+        TEST_EQ(states[i++], STATE_2);
         TEST_EQ(states[i++], STATE_3);
         TEST_EQ(states[i++], STATE_ZERO);
 
