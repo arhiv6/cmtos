@@ -1,53 +1,57 @@
-#define OS_LC_USE_GOTO
+#define OS_LC_USE_SWICH
 #include "os_lc.h"
 
 #include "test.h"
 
-static void test_task_a(lc_t *lc, int *val)
+static enum
 {
-    LC_BEGIN(lc);
-    *val += 1;
-    LC_YIELD(lc);
-    *val += 3;
-    LC_END();
-}
+    STATE_0,
+    STATE_1,
+    STATE_2,
+    STATE_3,
+    STATE_4,
+} state;
 
-static void test_task_b(lc_t *lc, int *val)
+static void test_task(lc_t *lc)
 {
-    LC_BEGIN(lc);
-    *val += 5;
+    state = STATE_0;
+    LC_BEGIN(lc);    
+    state = STATE_1;
     LC_YIELD(lc);
-    *val += 7;
-    LC_END();
+    state = STATE_2;
+    LC_YIELD(lc);
+    state = STATE_3;
+    LC_END(lc);
+    state = STATE_4;
 }
 
 void test_os_lc(void)
 {
-    lc_t a, b;
+    lc_t lc;
+    state = STATE_0;
 
-    int val1 = 0;
-    LC_INIT(&a);
-    test_task_a(&a, &val1);
-    TEST_EQ(val1, 1);
-    val1 = 0;
-    LC_INIT(&a);
-    test_task_a(&a, &val1);
-    TEST_EQ(val1, 1);
+    // начальная инициализация не меняет состояние
+    LC_INIT(&lc);
+    TEST_EQ(state, STATE_0);
 
-    val1 = 0;
-    int val2 = 0;
-    LC_INIT(&a);
-    LC_INIT(&b);
-    test_task_a(&a, &val1);
-    val2 += 1;
-    TEST_EQ(val1, val2);
-    test_task_b(&b, &val1);
-    val2 += 5;
-    TEST_EQ(val1, val2);
-    test_task_a(&a, &val1);
-    val2 += 3;
-    TEST_EQ(val1, val2);
-    test_task_b(&b, &val1);
-    val2 += 7;
-    TEST_EQ(val1, val2);
+    // первый вызов функции измененит состояние и приостановит её работу
+    test_task(&lc);
+    TEST_EQ(state, STATE_1);
+
+    // повторная инициализация и первый вызов приведёт к тому же состоянию
+    LC_INIT(&lc);
+    test_task(&lc);
+    TEST_EQ(state, STATE_1);
+
+    // ещё один вызов приведёт к следующему состоянию
+    test_task(&lc);
+    TEST_EQ(state, STATE_2);
+
+    // завершение произошло с помощью LC_END а не по выходу из функции
+    test_task(&lc);
+    TEST_EQ(state, STATE_3);
+
+     // автоматическая реинициализация после завершения с помощью LC_END
+    test_task(&lc);
+    TEST_EQ(state, STATE_1);
 }
