@@ -10,7 +10,7 @@ void os_init()
     os = empty;
 }
 
-bool os_add_task(task_function_t function, void *data)
+bool os_add_task(task_function_t function, uint8_t priority, void *data)
 {
     if (function == NULL)
     {
@@ -26,6 +26,7 @@ bool os_add_task(task_function_t function, void *data)
     new_task.function = function;
     new_task.state = ready;
     new_task.data = data;
+    new_task.priority = priority;
     LC_INIT(&new_task.lc_state);
 
     os.tasks[os.task_count] = new_task;
@@ -38,13 +39,20 @@ void os_start()
 {
     while (true)                                    // пока не выполним всё
     {
+        uint32_t max_priority_task_number = 0;
+        uint32_t max_priority = 0;
         for (uint8_t i = 0; i < os.task_count; i++) // проходим по списку задач
         {
             if (os.tasks[i].state == ready)
             {
-                os.current_task = &os.tasks[i];
-                os.current_task->function(os.current_task->data);
+                if (os.tasks[i].priority > max_priority)
+                {
+                    max_priority = os.tasks[i].priority;
+                    max_priority_task_number = i;
+                }
             }
         }
+        os.current_task = &os.tasks[max_priority_task_number];
+        os.current_task->function(os.current_task->data);
     }
 }

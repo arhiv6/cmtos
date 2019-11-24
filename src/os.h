@@ -47,7 +47,7 @@ extern struct os_t os;
 //---------------------------------------------
 
 void os_init();
-bool os_add_task(task_function_t function, void *data);
+bool os_add_task(task_function_t function, uint8_t priority, void *data);
 void os_start();
 
 #endif // OS_H

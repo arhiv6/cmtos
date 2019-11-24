@@ -5,13 +5,14 @@
 
 enum state_t
 {
+    STATE_ZERO = 0,
     STATE_0,
     STATE_1,
     STATE_2,
     STATE_3,
 };
 
-enum state_t states[10];
+enum state_t states[10] = {0};
 
 static int state_num = 0;
 
@@ -38,17 +39,15 @@ void test_os(void)
 
     os_init();
 
-    os_add_task(test_task, 0);
-    os_add_task(test_task, 0);
-    os_add_task(test_task_exit, &quit);
+    os_add_task(test_task, 1, 0);
+    os_add_task(test_task_exit, 2, &quit);
 
     if (setjmp(quit))
     {
         int i=0;
         TEST_EQ(states[i++], STATE_0);
-        TEST_EQ(states[i++], STATE_1);
-        TEST_EQ(states[i++], STATE_1);
         TEST_EQ(states[i++], STATE_3);
+        TEST_EQ(states[i++], STATE_ZERO);
 
         return;
     }
