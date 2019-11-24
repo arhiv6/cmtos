@@ -19,7 +19,7 @@
     #define LC_INIT(s)      *(s) = 0
     #define LC_BEGIN(s)     switch (*(s)) { case 0: (void)0
     #define LC_YIELD(s)     *(s) = __LINE__; return; case __LINE__ : (void)0
-    #define LC_END()        } (void)0
+    #define LC_END(s)       }; LC_INIT(s); return
 
 #elif defined(OS_LC_USE_GOTO)       /* LC, основанные на goto/label */
 
@@ -33,7 +33,7 @@
     #define LC_INIT(s)      *(s) = NULL
     #define LC_BEGIN(s)     if (*(s)) goto *(*(s))
     #define LC_YIELD(s)     *(s) = &&LC_LABEL(__LINE__); return; LC_LABEL(__LINE__) : (void)0
-    #define LC_END()
+    #define LC_END(s)       LC_INIT(s); return
 
 #elif defined(OS_LC_USE_SETJMP)     /* LC, основанные на setjmp/longjmp */
 
@@ -49,7 +49,7 @@
     #define LC_INIT(s)      (s)->is_init = false
     #define LC_BEGIN(s)     if ((s)->is_init) longjmp((s)->buf, 0); else (s)->is_init = true
     #define LC_YIELD(s)     if (setjmp((s)->buf) == 0) return
-    #define LC_END()
+    #define LC_END(s)       LC_INIT(s); return
 
 #else
     #error OS_LC_USE_x not defined
