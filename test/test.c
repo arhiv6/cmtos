@@ -3,6 +3,36 @@
 
 #include "test.h"
 
+#ifdef _WIN32
+#include <Windows.h>
+
+#ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
+    #define ENABLE_VIRTUAL_TERMINAL_PROCESSING  0x0004
+#endif
+
+static HANDLE stdoutHandle;
+static DWORD outModeInit;
+
+void enable_colors_in_console(void)
+{
+    stdoutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+
+    DWORD outMode = 0;
+    GetConsoleMode(stdoutHandle, &outMode);
+
+    outModeInit = outMode;
+    outMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;  // Enable ANSI escape codes
+
+    SetConsoleMode(stdoutHandle, outMode);
+}
+
+void restore_colors_in_console(void)
+{
+    printf("\x1b[0m");                              // Reset colors
+    SetConsoleMode(stdoutHandle, outModeInit);      // Reset console mode
+}
+#endif
+
 #define COLOR_RED(TEXT)     "\033[1;31m" TEXT "\033[0m"
 #define COLOR_GREEN(TEXT)   "\033[1;32m" TEXT "\033[0m"
 
@@ -10,6 +40,9 @@ struct test_internal_data test;
 
 void test_init()
 {
+#ifdef _WIN32
+    enable_colors_in_console();
+#endif
     static struct test_internal_data zero = {0};
     test = zero;
     printf("Running tests.\n");
@@ -56,14 +89,20 @@ int test_report()
     printf("Fails:  %u\n", test.fail_counter);
     printf("Status:");
 
+    int state;
     if (test.fail_counter)
     {
         printf(COLOR_RED(" FAIL \n\n"));
-        return EXIT_FAILURE;
+        state = EXIT_FAILURE;
     }
     else
     {
         printf(COLOR_GREEN(" PASSED \n\n"));
-        return EXIT_SUCCESS;
+        state = EXIT_SUCCESS;
     }
+
+#ifdef _WIN32
+    restore_colors_in_console();
+#endif
+    return state;
 }
