@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <signal.h>
 
 #include "test.h"
 
@@ -13,7 +14,7 @@
 static HANDLE stdoutHandle;
 static DWORD outModeInit;
 
-void enable_colors_in_console(void)
+static void enable_colors_in_console(void)
 {
     stdoutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
 
@@ -26,7 +27,7 @@ void enable_colors_in_console(void)
     SetConsoleMode(stdoutHandle, outMode);
 }
 
-void restore_colors_in_console(void)
+static void restore_colors_in_console(void)
 {
     printf("\x1b[0m");                              // Reset colors
     SetConsoleMode(stdoutHandle, outModeInit);      // Reset console mode
@@ -38,8 +39,14 @@ void restore_colors_in_console(void)
 
 struct test_internal_data test;
 
+static void sigabrt_trap(int dummy)
+{
+    longjmp(test.sigabrt_jmp_buf, dummy);
+}
+
 void test_init()
 {
+    signal(SIGABRT, sigabrt_trap);
 #ifdef _WIN32
     enable_colors_in_console();
 #endif
@@ -53,7 +60,16 @@ void test_run_suite(const char *name, void (*function)(void))
     printf("\r\nRun suite %s:\n", name);
     fflush(stdout);
     test.number_in_suite = 0;
-    function();
+
+    if (!setjmp(test.sigabrt_jmp_buf))    /* set abort() trap for assert() */
+    {
+        function();
+    }
+    else                            /* trap worked */
+    {
+        printf(COLOR_RED(" - ") "Suite aborted\r\n");
+        test.fail_counter++;
+    }
 }
 
 void test_log(const char *function, char *file, unsigned int line, bool state)
@@ -87,7 +103,7 @@ int test_report()
     printf("Runs:   %u\n", test.pass_counter + test.fail_counter);
     printf("Passes: %u\n", test.pass_counter);
     printf("Fails:  %u\n", test.fail_counter);
-    printf("Status:");
+    printf("\nStatus:");
 
     int state;
     if (test.fail_counter)
